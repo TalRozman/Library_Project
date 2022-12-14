@@ -169,8 +169,8 @@ const addLoan = async () => {
       },
       body: JSON.stringify(res)
     })
+    location.reload()
   }
-  location.reload()
 }
 
 // CLOSE LOAN
@@ -187,20 +187,22 @@ const returnBook = async (id) => {
       },
       body: JSON.stringify(res)
     })
+    location.reload()
   }
-  location.reload()
 }
 
 // DELETE CUSTOMER
 const removeCust = async (id) => {
   await fetch(MY_SERVER + `customers/${id}`, { method: "DELETE" })
   location.reload()
+
 }
 
 // DELETE BOOK
 const delBook = async (id) => {
   await fetch(MY_SERVER + `books/${id}`, { method: "DELETE" })
   location.reload()
+
 }
 
 // search for book by name
