@@ -1,4 +1,5 @@
-const MY_SERVER = "https://TRlibraryProject.onrender.com/"
+////const MY_SERVER = "https://TRlibraryProject.onrender.com/"
+const MY_SERVER = "http://127.0.0.1:5000/"
 // DISPLAYS:
 // Display BOOKS
 const getAllBooks = async () => {
@@ -52,28 +53,33 @@ getAllCustomers()
 // Display LOANS
 const getAllLoans = async () => {
     let msg = `<table id="loansTable" class="searchTable" style="text-align: center;">
-  <tr>
-    <th>Actions</th>
-    <th>Cusomer's ID</th>
-    <th>Loaned Book ID</th>
-    <th>Loan's Date</th>
-    <th>Loan's Return Date</th>
-    <th>Status</th>
-  </tr>`
-    let res = ""
-    await fetch(MY_SERVER + "loans", { method: "GET" }).then((response) => response.json()).then((data) => res = data);
-    console.log(res)
-    res.map((loan, i) => {
+      <tr>
+        <th>Actions</th>
+        <th>Cusomer's Name</th>
+        <th>Loaned Book Name</th>
+        <th>Loan's Date</th>
+        <th>Loan's Return Date</th>
+        <th>Status</th>
+      </tr>`
+    let loans1 = [];
+    let bookName, CustName = "";
+    let active = true;
+    await fetch(MY_SERVER + "loans", { method: "GET" }).then((response) => response.json()).then((data) => loans1.push(data));
+    await fetch(MY_SERVER + "books", { method: "GET" }).then((response) => response.json()).then((data) => loans1.push(data));
+    await fetch(MY_SERVER + "customers", { method: "GET" }).then((response) => response.json()).then((data) => loans1.push(data));
+    console.log(loans1)
+    loans1[0].map((loan, i) => {
         let d1 = new Date();
         let d2 = new Date(loan["loanDate"])
         let status = "ON TIME"
         if (loan["returnDate"] != "null") {
             d1 = new Date(loan["returnDate"])
+            active == false
         }
         var dif = Math.abs(d1 - d2);
         d = Math.round(dif / (1000 * 3600 * 24)) - 1
         console.log(d + " Days");
-
+        
         if (loan["bookType"] == 1 && d > 10) status = "LATE"
         else if (loan["bookType"] == 1 && d == 10) status = "DUE TODAY"
         else if (loan["bookType"] == 2 && d > 5) status = "LATE"
@@ -81,23 +87,76 @@ const getAllLoans = async () => {
         else if (loan["bookType"] == 3 && d > 2) status = "LATE"
         else if (loan["bookType"] == 3 && d == 2) status = "DUE TODAY"
 
-        if (loan["returnDate"] == "null") {
-            msg += `<tr>
-    <td><button class="btn btn-warning" onclick="returnBook(${loan["id"]})">Return Book</button></td>
-    <td>${loan["custId"]}</td>
-    <td>${loan["bookId"]}</td>
-    <td>${loan["loanDate"]}</td>
-    <td><form class="formContainer"><input type="date" id="rDate${loan["id"]}" placeholder="Return Date" name="rDate" required ></form></td>
-    <td>${status}</td></tr>`
+        loans1[1].map(book => {
+            if (loan["bookId"] == book["id"]) {
+                bookName =book["name"]
+            }
+        })
+        loans1[2].map(cust => {
+            if (loan["custId"] == cust["id"]) {
+                CustName = cust["name"]
+            }
+        })
+
+        if (status == "LATE") {
+            if (loan["returnDate"] == "null") {
+                msg += `<tr>
+                <td><button class="btn btn-warning" onclick="returnBook(${loan["id"]})">Return Book</button></td>
+                <td>${CustName}</td>
+                <td>${bookName}</td>
+                <td>${loan["loanDate"]}</td>
+                <td><form class="formContainer"><input type="date" max="${d1.getFullYear()}-${d1.getMonth() + 1}-${d1.getDate()}" id="rDate${loan["id"]}" placeholder="Return Date" name="rDate" required ></form></td>
+                <td style="color:red;font-weight: bold">${status}</td></tr>`
+            }
+            else {
+                msg += `<tr>
+                <td><button class="btn btn-info">No Action Required</button></td>
+                <td>${CustName}</td>
+                <td>${bookName}</td>
+                <td>${loan["loanDate"]}</td>
+                <td>${loan["returnDate"]}</td>
+                <td style="color:red;font-weight: bold">RETURNED <br/> ${status}</td></tr>`
+            }
         }
-        else {
-            msg += `<tr>
-    <td><button class="btn btn-info">No Action Required</button></td>
-    <td>${loan["custId"]}</td>
-    <td>${loan["bookId"]}</td>
-    <td>${loan["loanDate"]}</td>
-    <td>${loan["returnDate"]}</td>
-    <td>${status}</td></tr>`
+        else if (status == "DUE TODAY") {
+            if (loan["returnDate"] == "null") {
+                msg += `<tr>
+                <td><button class="btn btn-warning" onclick="returnBook(${loan["id"]})">Return Book</button></td>
+                <td>${CustName}</td>
+                <td>${bookName}</td>
+                <td>${loan["loanDate"]}</td>
+                <td><form class="formContainer"><input type="date" max="${d1.getFullYear()}-${d1.getMonth() + 1}-${d1.getDate()}" id="rDate${loan["id"]}" placeholder="Return Date" name="rDate" max="${d1}" required ></form></td>
+                <td style="color:#DBA800;font-weight: bold">${status}</td></tr>`
+            }
+            else {
+                msg += `<tr>
+                <td><button class="btn btn-info">No Action Required</button></td>
+                <td>${CustName}</td>
+                <td>${bookName}</td>
+                <td>${loan["loanDate"]}</td>
+                <td>${loan["returnDate"]}</td>
+                <td style="color:green;font-weight: bold">RETURNED <br/> ON TIME</td></tr>`
+            }
+        }
+        else if (status == "ON TIME") {
+            if (loan["returnDate"] == "null") {
+                msg += `<tr>
+                <td><button class="btn btn-warning" onclick="returnBook(${loan["id"]})">Return Book</button></td>
+                <td>${CustName}</td>
+                <td>${bookName}</td>
+                <td>${loan["loanDate"]}</td>
+                <td><form class="formContainer"><input type="date" max="${d1.getFullYear()}-${d1.getMonth() + 1}-${d1.getDate()}" id="rDate${loan["id"]}" required ></form></td>
+                <td style="color:green;font-weight: bold">${status}</td></tr>`
+            }
+            else {
+                msg += `<tr>
+                <td><button class="btn btn-info">No Action Required</button></td>
+                <td>${CustName}</td>
+                <td>${bookName}</td>
+                <td>${loan["loanDate"]}</td>
+                <td>${loan["returnDate"]}</td>
+                <td style="color:green;font-weight: bold">RETURNED <br/> ${status}</td></tr>`
+            }
         }
     }).join("")
     document.getElementById("showLoans").innerHTML = msg
@@ -153,13 +212,25 @@ const addCust = async () => {
 
 // ADD LOAN
 const addLoan = async () => {
+    let books = [];
+    let customers = [];
+    let bks = document.getElementById("booksList")
+    for (let i = 0; i < bks.options.length; i++) {
+        await books.push(bks.options[i].value)
+    }
+    let cust = document.getElementById("customersList")
+    for (let i = 0; i < cust.options.length; i++) {
+        await customers.push(cust.options[i].value)
+    }
     if (document.getElementById("cId").value == "" || document.getElementById("bId").value == "" || document.getElementById("lDate").value == "") { invalidInput() }
+    else if (!customers.includes(document.getElementById("cId").value)) { invalidFkInput() }
+    else if (!books.includes(document.getElementById("bId").value)) { invalidFkInput() }
     else {
         const res = JSON.parse(`{
-    "custId":${document.getElementById("cId").value},
-    "bookId":${document.getElementById("bId").value},
-    "loanDate":"${document.getElementById("lDate").value}"
-    }`);
+            "custId":${document.getElementById("cId").value},
+            "bookId":${document.getElementById("bId").value},
+            "loanDate":"${document.getElementById("lDate").value}"
+            }`);
         console.log(res)
         await fetch(MY_SERVER + "loans", {
             method: "POST",
@@ -245,7 +316,6 @@ const searchCust = () => {
 
 // show ONLY LATE loans
 const showLate = async () => {
-    console.log(document.getElementById("showLate").checked)
     var filter, table, tr, td, i, txtValue;
     filter = "LATE"
     table = document.getElementById("loansTable");
@@ -263,7 +333,7 @@ const showLate = async () => {
     }
 }
 
-// show ONLY LATE loans
+// show ONLY ON TIME loans
 const showOnTime = async () => {
     var filter, table, tr, td, i, txtValue;
     filter = "ON TIME"
@@ -300,6 +370,69 @@ const showAll = async () => {
         }
     }
 }
+
+// show DUE TODAY loans
+const showToday = async () => {
+    var filter, table, tr, td, i, txtValue;
+    filter = "DUE TODAY"
+    table = document.getElementById("loansTable");
+    tr = await table.getElementsByTagName("tr");
+    for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[5];
+        if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+
+// show RETURNED loans
+const showReturned = async () => {
+    var filter, table, tr, td, i, txtValue;
+    filter = "RETURNED"
+    table = document.getElementById("loansTable");
+    tr = await table.getElementsByTagName("tr");
+    for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[5];
+        if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+
+// insert customers names to new loan screen
+const listCust = async () => {
+    let res = []
+    let lst = ""
+    await fetch(MY_SERVER + "customers", { method: "GET" }).then((response) => response.json()).then((data) => res = data);
+    console.log(res)
+    res.map(cst => {
+        lst += `<option value="${cst['id']}"> ${cst['name']} </option>`
+    })
+    document.getElementById('customersList').innerHTML = lst
+}
+
+// insert books names to new loan screen
+const listBooks = async () => {
+    let res = []
+    let lst = ""
+    await fetch(MY_SERVER + "books", { method: "GET" }).then((response) => response.json()).then((data) => res = data);
+    console.log(res)
+    res.map(book => {
+        lst += `<option value="${book['id']}"> ${book['name']} </option>`
+    })
+    document.getElementById('booksList').innerHTML = lst
+}
+
 
 (function () {
     "use strict";
@@ -480,7 +613,6 @@ const invalidInput = () => {
     Toastify({
         text: "Please fill all mandatory fields",
         duration: 3000,
-        destination: "https://github.com/apvarun/toastify-js",
         newWindow: true,
         close: true,
         gravity: "bottom", // `top` or `bottom`
@@ -497,7 +629,22 @@ const invalidTypeInput = () => {
     Toastify({
         text: "Book type must be between 1 to 3",
         duration: 3000,
-        destination: "https://github.com/apvarun/toastify-js",
+        newWindow: true,
+        close: true,
+        gravity: "bottom", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+        onClick: function () { } // Callback after click
+    }).showToast();
+}
+
+const invalidFkInput = () => {
+    Toastify({
+        text: "Book's ID and Customer's ID must exist",
+        duration: 3000,
         newWindow: true,
         close: true,
         gravity: "bottom", // `top` or `bottom`

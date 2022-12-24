@@ -96,7 +96,7 @@
                                 <button type="button" class="btn-close" data-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <form class="formContainer">
+                                <form class="formContainer" autocomplete="off">
                                     <label for="bName"><strong>Book's name</strong></label>
                                     <input type="text" id="bName" placeholder="Book's name" name="bName" required>
                                     <label for="author"><strong>Book's author</strong></label>
@@ -104,7 +104,12 @@
                                     <label for="yearPublished"><strong>Book's year of publish</strong></label>
                                     <input type="month" id="yearPublished" placeholder="Book's year of publish" name="yearPublished" required>
                                     <label for="bType"><strong>Book's type</strong></label>
-                                    <input type="number" id="bType" placeholder="Book's type" name="bType" required min="1" max="3">
+                                    <input type="text" list="types" id="bType" placeholder="Book's Type" name="bType"/>
+                                    <datalist id="types">
+                                        <option value="1">Up to 10 days</option>
+                                        <option value="2">Up to 5 days</option>
+                                        <option value="3">Up to 2 days</option>
+                                    </datalist>
                                 </form>
                             </div>
                             <div class="modal-footer">
@@ -140,7 +145,7 @@
                                 <button type="button" class="btn-close" data-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <form class="formContainer">
+                                <form class="formContainer" autocomplete="off">
                                     <label for="cName"><strong>Customer's name</strong></label>
                                     <input type="text" id="cName" placeholder="Customer's name" name="cName" required>
                                     <label for="cCity"><strong>Customer's city</strong></label>
@@ -174,12 +179,18 @@
 
                     <input type="radio" class="btn-check" name="filterShow" id="showOnTime" onclick="showOnTime()">
                     <label class="btn btn-outline-primary" for="showOnTime">Show On Time</label>
+
+                    <input type="radio" class="btn-check" name="filterShow" id="showToday" onclick="showToday()">
+                    <label class="btn btn-outline-primary" for="showToday">Shows Today</label>
+
+                    <input type="radio" class="btn-check" name="filterShow" id="showReturned" onclick="showReturned()">
+                    <label class="btn btn-outline-primary" for="showReturned">Shows Returned</label>
                     <br /><br /><br />
                 </div>
                 <div id="showLoans" class="row content">
                 </div>
                 <br>
-                <button id="opnBtn" data-toggle="modal" data-target="#addLoanModal" class="btn btn-primary">New Loan</button>
+                <button id="opnBtn" data-toggle="modal" data-target="#addLoanModal" class="btn btn-primary" onclick="listCust(); listBooks()">New Loan</button>
                 <div id="addLoanModal" class="modal fade" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -188,11 +199,13 @@
                                 <button type="button" class="btn-close" data-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <form class="formContainer">
-                                    <label for="cId"><strong>Customer ID</strong></label>
-                                    <input type="text" id="cId" placeholder="Customer ID" name="cId" required>
+                                <form class="formContainer" autocomplete="off">
+                                    <label for="cId"><strong>Customer's ID</strong></label>
+                                    <input type="text" list="customersList" id="cId" placeholder="Customer Name" name="cId" required>
+                                    <datalist id="customersList"></datalist>
                                     <label for="bId"><strong>Book's ID</strong></label>
-                                    <input type="text" id="bId" placeholder="Books's ID" name="bId" required>
+                                    <input type="text" list="booksList" id="bId" placeholder="Books's Name" name="bId" required>
+                                    <datalist id="booksList"></datalist>
                                     <label for="lDate"><strong>Loan Date</strong></label>
                                     <input type="date" id="lDate" placeholder="Loan Date" name="lDate" required>
                                 </form>
