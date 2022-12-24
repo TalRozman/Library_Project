@@ -75,7 +75,7 @@ The LMS is easy to use, accesible and can be operated on any computer/mobile dev
 <h2>loans management</h2>
 <img src="./assets/images/one_loan.jpg" />
 <h3>Display loans</h3>
-<img src="./assets/images/filter.jpg" width="100%"/>
+<img src="./assets/images/filter.jpg" width="50%"/>
  - Filter by late loans<br/>
  - Filter by on time loans<br/>
  - Filter by due today's loans<br/>
