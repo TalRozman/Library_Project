@@ -13,6 +13,7 @@ app.config['SECRET_KEY'] = "random string"
 db = SQLAlchemy(app)
 
 #Models
+# create books table
 class Books(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String)
@@ -27,6 +28,7 @@ class Books(db.Model):
         self.yearPublished = yearPublished
         self.loanType = loanType
 
+# create customers table
 class Customers(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String)
@@ -39,6 +41,7 @@ class Customers(db.Model):
         self.city = city
         self.age = age
 
+# create loans table
 class Loans(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     custId = db.Column(db.Integer, db.ForeignKey('customers.id'))
@@ -56,12 +59,14 @@ class Loans(db.Model):
 @app.route('/books',methods=['GET','POST'])
 @app.route('/books/<id>',methods=['PUT','DELETE','PATCH'])
 def Book(id = 0):
+    # GET BOOK
     if request.method == 'GET':
         res = []
         for book in Books.query.all():
             res.append({"id":book.id,"name":book.name,"author":book.author,"yearPublished":book.yearPublished,"loanType":book.loanType})
         return  (json.dumps(res))
-
+    
+    #POST(ADD) BOOK
     elif request.method == 'POST':
         tmpBook = request.get_json()
         name = tmpBook["name"]
@@ -73,6 +78,7 @@ def Book(id = 0):
         db.session.commit()
         return "New Book Added"
 
+    #PUT(UPDATE) BOOK
     elif request.method == 'PUT':
         tmpBook = request.get_json()
         updBook = Books.query.filter_by(id = id).first()
@@ -83,6 +89,7 @@ def Book(id = 0):
         db.session.commit()
         return "Book updated"
 
+    #DELETE BOOK
     elif request.method == 'DELETE':
         delBook = Books.query.filter_by(id = id).first()
         db.session.delete(delBook)
@@ -93,12 +100,14 @@ def Book(id = 0):
 @app.route('/customers',methods=['GET','POST'])
 @app.route('/customers/<id>',methods=['PUT','DELETE','PATCH'])
 def customer(id = 0):
+    # GET CUSTOMER    
     if request.method == 'GET':
         res = []
         for customer in Customers.query.all():
             res.append({"id":customer.id,"name":customer.name,"city":customer.city,"age":customer.age})
         return (json.dumps(res))
 
+    #POST(ADD) CUSTOMER
     elif request.method == 'POST':
         tmpCst = request.get_json()
         name = tmpCst["name"]
@@ -109,6 +118,7 @@ def customer(id = 0):
         db.session.commit()
         return "New Customer Added"
 
+    #PUT(UPDATE) CUSTOMER
     elif request.method == 'PUT':
         tmpCst = request.get_json()
         updCst = Customers.query.filter_by(id = id).first()
@@ -118,6 +128,7 @@ def customer(id = 0):
         db.session.commit()
         return "Customer updated"
 
+    #DELETE CUSTOMER
     elif request.method == 'DELETE':
         delCust = Customers.query.filter_by(id = id).first()
         db.session.delete(delCust)
@@ -128,12 +139,14 @@ def customer(id = 0):
 @app.route('/loans',methods=['GET','POST'])
 @app.route('/loans/<id>',methods=['PATCH'])
 def loan(id = 0):
+    # GET LOAN    
     if request.method == 'GET':
         res = []
         for loan,book in db.session.query(Loans,Books).join(Books).all():
             res.append({"id":loan.id,"custId":loan.custId,"bookId":loan.bookId,"loanDate":loan.loanDate,"returnDate":loan.returnDate,"bookType":book.loanType})
         return (json.dumps(res))
 
+    #POST(ADD) LOAN
     elif request.method == 'POST':
         tmpLoan = request.get_json()
         custId = tmpLoan["custId"]
@@ -144,6 +157,7 @@ def loan(id = 0):
         db.session.commit()
         return "Book Loaned Successfully"
     
+    #PATCH(UPDATE) LOAN
     elif request.method == "PATCH":
         updLoan = Loans.query.filter_by(id = id).first()
         tmpLoan = request.get_json()

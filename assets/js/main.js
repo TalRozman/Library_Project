@@ -4,6 +4,7 @@ const MY_SERVER = "https://TRlibraryProject.onrender.com/"
 // Display BOOKS
 const getAllBooks = async () => {
     let bookType = ""
+    // Create table
     let msg = `<table id="bookTable" class="searchTable" style="text-align: center;">
     <tr>
       <th>Actions</th>
@@ -13,12 +14,14 @@ const getAllBooks = async () => {
       <th>Book's maximum time of loan</th>
     </tr>`
     let res = ""
-    await fetch(MY_SERVER + "books", { method: "GET" }).then((response) => response.json()).then((data) => res = data);
+    let booktypes = [1, 2, 3]
+    await fetch(MY_SERVER + "books", { method: "GET" }).then((response) => response.json()).then((data) => res = data); // GET method to read books from DB
     res.map((book) => {
+        // user friendly book type
         if (book["loanType"] == 1) bookType = "up to 10 days"
         else if (book["loanType"] == 2) bookType = "up to 5 days"
         else if (book["loanType"] == 3) bookType = "up to 2 days"
-        else bookType = "ERORR"
+        // Fill table with data
         msg += `<tr>
         <td><button class="btn btn-danger" onclick="delBook(${book["id"]})">Delete Book</button></td>
         <td>${book["name"]}</td>
@@ -32,6 +35,7 @@ getAllBooks()
 
 // Display CUSTOMERS
 const getAllCustomers = async () => {
+    // Create table
     let msg = `<table id="custTable" class="searchTable" style="text-align: center;">
   <tr>
     <th>Actions</th>
@@ -40,18 +44,20 @@ const getAllCustomers = async () => {
     <th>customer's age</th>
   </tr>`
     let res = ""
-    await fetch(MY_SERVER + "customers", { method: "GET" }).then((response) => response.json()).then((data) => res = data);
-    res.map((customer) => msg += `<tr>
-  <td><button class="btn btn-danger" onclick="removeCust(${customer["id"]})">Delete Customer</button></td>
-  <td>${customer["name"]}</td>
-  <td>${customer["city"]}</td>
-  <td>${customer["age"]}</td></tr>`).join("")
+    await fetch(MY_SERVER + "customers", { method: "GET" }).then((response) => response.json()).then((data) => res = data); // GET method to read customers from DB
+    res.map((customer) =>{
+    msg += `<tr>
+    <td><button class="btn btn-danger" onclick="removeCust(${customer["id"]})">Delete Customer</button></td>
+    <td>${customer["name"]}</td>
+    <td>${customer["city"]}</td>
+    <td>${customer["age"]}</td></tr>`}).join("")
     document.getElementById("showCustomers").innerHTML = msg
 }
 getAllCustomers()
 
 // Display LOANS
 const getAllLoans = async () => {
+    // Create table
     let msg = `<table id="loansTable" class="searchTable" style="text-align: center;">
       <tr>
         <th>Actions</th>
@@ -61,14 +67,15 @@ const getAllLoans = async () => {
         <th>Loan's Return Date</th>
         <th>Status</th>
       </tr>`
-    let loans1 = [];
+    let loans1 = []; // Create array contains 3 arrays with data from 3 tables
     let bookName, CustName = "";
     let active = true;
-    await fetch(MY_SERVER + "loans", { method: "GET" }).then((response) => response.json()).then((data) => loans1.push(data));
-    await fetch(MY_SERVER + "books", { method: "GET" }).then((response) => response.json()).then((data) => loans1.push(data));
-    await fetch(MY_SERVER + "customers", { method: "GET" }).then((response) => response.json()).then((data) => loans1.push(data));
-    console.log(loans1)
+    await fetch(MY_SERVER + "loans", { method: "GET" }).then((response) => response.json()).then((data) => loans1.push(data)); // GET method to read loans from DB and push to array
+    await fetch(MY_SERVER + "books", { method: "GET" }).then((response) => response.json()).then((data) => loans1.push(data)); // GET method to read books from DB and push to array
+    await fetch(MY_SERVER + "customers", { method: "GET" }).then((response) => response.json()).then((data) => loans1.push(data)); // GET method to read customers from DB and push to array
+    console.log(loans1) // prints array to console
     loans1[0].map((loan, i) => {
+        // calculate today's date and loan date to check loan status
         let d1 = new Date();
         let d2 = new Date(loan["loanDate"])
         let status = "ON TIME"
@@ -79,7 +86,8 @@ const getAllLoans = async () => {
         var dif = Math.abs(d1 - d2);
         d = Math.round(dif / (1000 * 3600 * 24)) - 1
         console.log(d + " Days");
-        
+
+        // Set status using above calculation
         if (loan["bookType"] == 1 && d > 10) status = "LATE"
         else if (loan["bookType"] == 1 && d == 10) status = "DUE TODAY"
         else if (loan["bookType"] == 2 && d > 5) status = "LATE"
@@ -89,7 +97,7 @@ const getAllLoans = async () => {
 
         loans1[1].map(book => {
             if (loan["bookId"] == book["id"]) {
-                bookName =book["name"]
+                bookName = book["name"]
             }
         })
         loans1[2].map(cust => {
@@ -97,7 +105,7 @@ const getAllLoans = async () => {
                 CustName = cust["name"]
             }
         })
-
+        // fills table with late loans data
         if (status == "LATE") {
             if (loan["returnDate"] == "null") {
                 msg += `<tr>
@@ -118,6 +126,7 @@ const getAllLoans = async () => {
                 <td style="color:red;font-weight: bold">RETURNED <br/> ${status}</td></tr>`
             }
         }
+        // fills table with DUE TODAY loans data        
         else if (status == "DUE TODAY") {
             if (loan["returnDate"] == "null") {
                 msg += `<tr>
@@ -138,6 +147,7 @@ const getAllLoans = async () => {
                 <td style="color:green;font-weight: bold">RETURNED <br/> ON TIME</td></tr>`
             }
         }
+        // fills table with on time loans data
         else if (status == "ON TIME") {
             if (loan["returnDate"] == "null") {
                 msg += `<tr>
@@ -166,15 +176,17 @@ getAllLoans();
 // ADD ITEMS
 // ADD BOOK
 const addBook = async () => {
+    // checks if input is not empty and if book type is 1/2/3 and opens toastify notification
     if (document.getElementById("bName").value == "" || document.getElementById("author").value == "" || document.getElementById("yearPublished").value == "" || document.getElementById("bType").value == "") { invalidInput() }
     else if (document.getElementById("bType").value > 3 || document.getElementById("bType").value < 1) { invalidTypeInput() }
     else {
+        // Create book in DB using POST method and JSON format
         const res = JSON.parse(`{
-"name":"${document.getElementById("bName").value}",
-"author":"${document.getElementById("author").value}",
-"yearPublished":"${document.getElementById("yearPublished").value}",
-"loanType":${document.getElementById("bType").value}
-}`);
+        "name":"${document.getElementById("bName").value}",
+        "author":"${document.getElementById("author").value}",
+        "yearPublished":"${document.getElementById("yearPublished").value}",
+        "loanType":${document.getElementById("bType").value}
+        }`);
         console.log(res)
         await fetch(MY_SERVER + "books", {
             method: "POST",
@@ -190,13 +202,15 @@ const addBook = async () => {
 
 // ADD CUSTOMER
 const addCust = async () => {
+    // checks if input is not empty and opens toastify notification
     if (document.getElementById("cName").value == "" || document.getElementById("cCity").value == "" || document.getElementById("cAge").value == "") { invalidInput() }
     else {
+        // Create customer in DB using POST method and JSON format
         const res = JSON.parse(`{
-      "name":"${document.getElementById("cName").value}",
-      "city":"${document.getElementById("cCity").value}",
-      "age":${document.getElementById("cAge").value}
-      }`);
+        "name":"${document.getElementById("cName").value}",
+        "city":"${document.getElementById("cCity").value}",
+        "age":${document.getElementById("cAge").value}
+        }`);
         console.log(res)
         await fetch(MY_SERVER + "customers", {
             method: "POST",
@@ -222,10 +236,12 @@ const addLoan = async () => {
     for (let i = 0; i < cust.options.length; i++) {
         await customers.push(cust.options[i].value)
     }
+    // checks if input is not empty and if book id or customer id is not exist and opens toastify notification
     if (document.getElementById("cId").value == "" || document.getElementById("bId").value == "" || document.getElementById("lDate").value == "") { invalidInput() }
     else if (!customers.includes(document.getElementById("cId").value)) { invalidFkInput() }
     else if (!books.includes(document.getElementById("bId").value)) { invalidFkInput() }
     else {
+        // Create loan in DB using POST method and JSON format
         const res = JSON.parse(`{
             "custId":${document.getElementById("cId").value},
             "bookId":${document.getElementById("bId").value},
@@ -246,6 +262,7 @@ const addLoan = async () => {
 
 // CLOSE LOAN
 const returnBook = async (id) => {
+    // update loan using PATCH method in order to return a book
     const res = JSON.parse(`{"returnDate":"${document.getElementById(`rDate${id}`).value}"}`);
     if (document.getElementById(`rDate${id}`).value == "") { invalidInput() }
     else {
@@ -264,12 +281,14 @@ const returnBook = async (id) => {
 
 // DELETE CUSTOMER
 const removeCust = async (id) => {
+    // REMOVE a customer using DELETE method
     await fetch(MY_SERVER + `customers/${id}`, { method: "DELETE" })
     location.reload()
 }
 
 // DELETE BOOK
 const delBook = async (id) => {
+    // REMOVE a book using DELETE method
     await fetch(MY_SERVER + `books/${id}`, { method: "DELETE" })
     location.reload()
 }
@@ -609,6 +628,7 @@ const listBooks = async () => {
 
 })()
 
+// Shows a toastify notification for missing input data
 const invalidInput = () => {
     Toastify({
         text: "Please fill all mandatory fields",
@@ -625,6 +645,7 @@ const invalidInput = () => {
     }).showToast();
 }
 
+// Shows a toastify notification for incorrect book type
 const invalidTypeInput = () => {
     Toastify({
         text: "Book type must be between 1 to 3",
@@ -641,6 +662,7 @@ const invalidTypeInput = () => {
     }).showToast();
 }
 
+// Shows a toastify notification for adding a non existing book id or customer id to a loan
 const invalidFkInput = () => {
     Toastify({
         text: "Book's ID and Customer's ID must exist",
