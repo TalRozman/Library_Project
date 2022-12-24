@@ -48,12 +48,13 @@
 <!-- ABOUT THE PROJECT -->
 <h1>About The Project</h1>
 
-<img src="./assets/images/home.jpg">
+<img src="./assets/images/home.jpg"/>
 LMS is a new web based library management system!<br/>
 The LMS is easy to use, accesible and can be operated on any computer/mobile device without any installation!
 <br/><br/>
 <h1>system abilities</h1>
 <h2>Books management</h2>
+<img src="./assets/images/books.jpg"/>
 <h3>List books</h3>
 - Search book by name
  <h3>Add Book</h3>
@@ -63,6 +64,7 @@ The LMS is easy to use, accesible and can be operated on any computer/mobile dev
   - Book's type - how long can be loaned for (2/5/10 days)<br/>
   <h3>Delete book</h3>
 <h2>customers management</h2>
+<img src="./assets/images/customers.jpg"/>
 <h3>List customers</h3>
 - Search customer by name
 <h3>Add Customer</h3>
@@ -71,7 +73,9 @@ The LMS is easy to use, accesible and can be operated on any computer/mobile dev
  - Customer's age<br/>
 <h3>Delete Customer</h3>
 <h2>loans management</h2>
+<img src="./assets/images/one_loan.jpg" />
 <h3>Display loans</h3>
+<img src="./assets/images/filter.jpg" width="100%"/>
  - Filter by late loans<br/>
  - Filter by on time loans<br/>
  - Filter by due today's loans<br/>
