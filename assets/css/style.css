@@ -1628,10 +1628,11 @@ section {
 }
 
 .searchTable {
-  border-collapse: collapse;
-  width: 100%;
-  border: 1px solid #ddd;
-  font-size: 18px;
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid #ddd;
+    font-size: 18px;
+    table-layout: fixed;
 }
 
 .searchTable th, .searchTable td {
