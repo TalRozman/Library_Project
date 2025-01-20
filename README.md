@@ -20,10 +20,10 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/TalRozman/Library_Project">
+  <a href="https://talrozman-librarysystem.netlify.app/">
     <img src="https://www.changinghands.com/sites/changinghands.com/files/teenbundle.jpg" alt="Logo" width="80" height="80">
   </a>
-  <h1 align="center">LMS - Library Management System</h1>
+  <h1 align="center"><a href="https://talrozman-librarysystem.netlify.app/">LMS - Library Management System</a></h1>
   <h2>By Tal Rozman</h2>
 </div>
 
